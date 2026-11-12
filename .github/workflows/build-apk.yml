@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
@@ -22,16 +22,22 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        continue-on-error: true
+
+      - name: Locate Android SDK
+        run: |
+          echo "ANDROID_HOME=${ANDROID_HOME}"
+          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}"
+          find "${ANDROID_HOME}" -name sdkmanager -type f
 
       - name: Accept Android Licenses
         run: |
-          mkdir -p "$ANDROID_HOME/licenses"
-          yes | sdkmanager --licenses || true
+          SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses || true
 
       - name: Install Android SDK
         run: |
-          sdkmanager "platforms;android-37" "build-tools;36.0.0"
+          SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+          "$SDKMANAGER" "platforms;android-37" "build-tools;36.0.0"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
